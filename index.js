@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const path=require('path');
 const app=express();
 const bodyParser=require('body-parser');
+const bcrypt=require('bcrypt');
 
 const DbUser="mongodb+srv://Ishwor:password69@cluster0.4yct566.mongodb.net/?retryWrites=true&w=majority"
 const connectionParams={

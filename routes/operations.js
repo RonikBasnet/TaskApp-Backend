@@ -7,17 +7,55 @@ const Users=require('./user.schema')
 
 router.post('/user/post',async(req,res)=>
     {
-      try{
-          let newUser=new Users(req.body);
-          const savedUser=await newUser.save();
-          res.status(200).json('User Posted');
+      hashpassword(req.body.password),(err,hash)=>{
+        if(err){
+          res.status(200).json(err);
         }
-      catch(err)
-          {
-            console.log(err);
-          }
-    }  
+        const newUser= new Users({
+          contact:req.body.contact,
+          password:hash
+        });
+      newUser.save().then(()=>{
+        res.status(200).json('success')
+      })
+      .catch((err)=>{
+        res.status(201).json(err)
+      })
+      };
+      
+    }
+    //   try{
+    //       let newUser=new Users(req.body);
+    //       const savedUser=await newUser.save();
+    //       res.status(200).json('User Posted');
+    //     }
+    //   catch(err)
+    //       {
+    //         console.log(err);
+    //       }
+    // }  
 )
+
+
+router.post('/user/login',(req,res)=>{
+  Users.findOne({ email: req.body.email })
+  .then((Users) => {
+    if (!Users) {
+      return res.status(401).json({ message: 'Authentication failed' });
+    }
+    bcrypt.compare(req.body.password, Users.password, (err, result) => {
+      if (err || !result) {
+        return res.status(401).json({ message: 'Authentication failed' });
+      }
+      const token = jwt.sign({ email: Users.email }, 'secret_key');
+      res.status(200).json({ token: token });
+    });
+  })
+  .catch((error) => {
+    res.status(500).json({ error: error });
+  });
+})
+
 router.patch('/user/update/:id',async(req,res)=>
     {
       try{
